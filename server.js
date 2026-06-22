@@ -1,5 +1,6 @@
 import express from 'express'
 import basicAuth from 'express-basic-auth'
+import rateLimit from 'express-rate-limit'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
@@ -17,7 +18,10 @@ const readStore = () => {
 }
 const writeStore = (store) => writeFileSync(STATE_FILE, JSON.stringify(store))
 
+// health check before auth + rate limit so Railway's probe always passes
 app.get('/health', (_req, res) => res.sendStatus(200))
+
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }))
 
 app.use(basicAuth({
   users: { [process.env.APP_USER || 'sophie']: process.env.APP_PASS || 'changeme' },
