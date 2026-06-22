@@ -17,6 +17,8 @@ const readStore = () => {
 }
 const writeStore = (store) => writeFileSync(STATE_FILE, JSON.stringify(store))
 
+app.get('/health', (_req, res) => res.sendStatus(200))
+
 app.use(basicAuth({
   users: { [process.env.APP_USER || 'sophie']: process.env.APP_PASS || 'changeme' },
   challenge: true,
